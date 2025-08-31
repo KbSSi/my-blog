@@ -51,7 +51,8 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
               {children}
             </li>
           ),
-          code: ({ inline, children, className }) => {
+          code: ({ children, className, ...props }: any) => {
+            const inline = props.inline
             if (inline) {
               return (
                 <code className="bg-white border border-gray-300 px-2 py-1 rounded text-sm font-mono text-gray-900">
