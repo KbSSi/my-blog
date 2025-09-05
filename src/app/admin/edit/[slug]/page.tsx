@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import MarkdownRenderer from '@/components/MarkdownRenderer'
+import ImageUploader from '@/components/ImageUploader'
 import { type Post } from '@/lib/posts'
 
 interface EditPostPageProps {
@@ -90,6 +91,28 @@ export default function EditPostPage({ params }: EditPostPageProps) {
       ...prev,
       [name]: value
     }))
+  }
+
+  const handleImageSelect = (imageUrl: string) => {
+    // 在光标位置插入图片 Markdown 语法
+    const textarea = document.getElementById('content') as HTMLTextAreaElement
+    if (textarea) {
+      const start = textarea.selectionStart
+      const end = textarea.selectionEnd
+      const text = textarea.value
+      const before = text.substring(0, start)
+      const after = text.substring(end)
+      const imageMarkdown = `![图片描述](${imageUrl})`
+      
+      const newValue = before + imageMarkdown + after
+      setFormData(prev => ({ ...prev, content: newValue }))
+      
+      // 设置光标位置到插入内容之后
+      setTimeout(() => {
+        textarea.focus()
+        textarea.setSelectionRange(start + imageMarkdown.length, start + imageMarkdown.length)
+      }, 0)
+    }
   }
 
   if (loading) {
@@ -203,6 +226,19 @@ export default function EditPostPage({ params }: EditPostPageProps) {
               <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
                 内容 (支持 Markdown)
               </label>
+              
+              {/* 图片上传组件 */}
+              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">图片管理</h4>
+                <ImageUploader 
+                  onImageSelected={handleImageSelect}
+                  showGallery={true}
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  提示：选择图片后会自动插入到文章内容中，您也可以直接复制图片链接手动插入
+                </p>
+              </div>
+              
               <textarea
                 id="content"
                 name="content"
